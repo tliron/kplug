@@ -1,0 +1,48 @@
+apiVersion: myorg.org/v1alpha1
+kind: DatabaseTable
+
+metadata:
+  name: users
+  namespace: kplug-example
+
+spec:
+  serverName: authorization-cluster
+  preferredImplementation: MariaDB
+
+  columns:
+  - name: id
+    type: uint64
+  - name: name
+    type: string
+
+  extensions:
+  - apiVersion: myorg.org/v1alpha1
+    kind: DatabaseTableMariaDbExtension
+    name: users
+  - apiVersion: myorg.org/v1alpha1
+    kind: DatabaseTablePostgreSqlExtension
+    name: users
+
+---
+
+apiVersion: myorg.org/v1alpha1
+kind: DatabaseTableMariaDbExtension
+
+metadata:
+  name: users
+  namespace: kplug-example
+
+spec:
+  storageEngine: InnoDB
+
+---
+
+apiVersion: myorg.org/v1alpha1
+kind: DatabaseTablePostgreSqlExtension
+
+metadata:
+  name: users
+  namespace: kplug-example
+
+spec:
+  partitionBy: hash

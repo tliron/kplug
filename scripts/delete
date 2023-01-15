@@ -1,0 +1,10 @@
+#!/bin/bash
+set -e
+
+HERE=$(dirname "$(readlink --canonicalize "$BASH_SOURCE")")
+. "$HERE/_env"
+
+kubectl delete -f "$ROOT/examples/database-table/assets/kubernetes/example.yaml" --wait || true
+kubectl delete -f "$ROOT/examples/database-table/assets/kubernetes/mariadb-plugin.yaml" --wait || true
+kubectl delete -f "$ROOT/examples/database-table/assets/kubernetes/postgresql-plugin.yaml" --wait || true
+kubectl delete -f "$ROOT/examples/database-table/assets/kubernetes/operator.yaml" --wait || true

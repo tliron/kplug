@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package kplug;
+
+import "google/protobuf/empty.proto";
+
+option go_package = "github.com/tliron/kplug/kplug/grpc";
+
+service Controller {
+    rpc pluginHeartbeat(PluginInformation) returns (PluginHeartbeatResponse);
+}
+
+service Plugin {
+    rpc create(Resources) returns (Resources);
+    rpc update(Resources) returns (Resources);
+    rpc delete(Resources) returns (google.protobuf.Empty);
+}
+
+message PluginInformation {
+    string address = 1;
+    string name = 2;
+    string version = 3;
+    string api = 4;
+    string apiVersion = 5;
+}
+
+message PluginHeartbeatResponse {
+    bool accepted = 1;
+    string notAcceptedReason = 2;
+}
+
+message Resource {
+    string yaml = 2;
+}
+
+message Resources {
+    Resource base = 1;
+    map<string, Resource> extensions = 2;
+}

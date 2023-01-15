@@ -1,0 +1,41 @@
+#!/bin/bash
+set -e
+
+HERE=$(dirname "$(readlink --canonicalize "$BASH_SOURCE")")
+. "$HERE/_env"
+. "$HERE/_trap"
+
+"$HERE/build"
+
+# https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/building_running_and_managing_containers/using_red_hat_universal_base_images_standard_minimal_and_runtimes
+
+BASE_IMAGE=registry.access.redhat.com/ubi8/ubi
+# registry.redhat.io/ubi8/ubi
+# note: ubi-minimal does not have "tar" which is needed for kubectl cp
+
+# operator
+
+CONTAINER_ID=$(buildah from "$BASE_IMAGE")
+buildah copy "$CONTAINER_ID" "$GOPATH/bin/database-table-operator" /usr/bin/
+buildah config \
+	--entrypoint /usr/bin/database-table-operator \
+	--author Kplug \
+	--created-by buildah \
+	"$CONTAINER_ID"
+buildah commit "$CONTAINER_ID" localhost/kplug-database-table-operator
+
+# plugin
+
+CONTAINER_ID=$(buildah from "$BASE_IMAGE")
+buildah run "$CONTAINER_ID" -- dnf --assumeyes install python39
+buildah run "$CONTAINER_ID" -- dnf --assumeyes clean all
+buildah run "$CONTAINER_ID" -- python3 -m pip install --upgrade pip
+buildah run "$CONTAINER_ID" -- python3 -m pip install --root-user-action=ignore grpcio protobuf ruamel.yaml
+buildah copy "$CONTAINER_ID" "$ROOT/examples/database-table/postgresql-plugin/"* /home/postgresql-plugin/
+buildah copy "$CONTAINER_ID" "$ROOT/sdk/python/kplug/"* /home/postgresql-plugin/kplug/
+buildah config \
+	--entrypoint /home/postgresql-plugin/database_table_postgresql_plugin.py \
+	--author Kplug \
+	--created-by buildah \
+	"$CONTAINER_ID"
+buildah commit "$CONTAINER_ID" localhost/kplug-database-table-postgresql-plugin

@@ -1,0 +1,24 @@
+#!/bin/bash
+set -e
+
+HERE=$(dirname "$(readlink --canonicalize "$BASH_SOURCE")")
+. "$HERE/_env"
+
+for ARG in "$@"; do
+	case "$ARG" in
+		-c)
+			"$HERE/delete"
+			sleep 5
+			;;
+		-b)
+			"$HERE/build"
+			"$HERE/build-container-images"
+			"$HERE/publish-container-images"
+			;;
+	esac
+done
+
+kubectl apply -f "$ROOT/examples/database-table/assets/kubernetes/operator.yaml"
+kubectl apply -f "$ROOT/examples/database-table/assets/kubernetes/mariadb-plugin.yaml"
+kubectl apply -f "$ROOT/examples/database-table/assets/kubernetes/postgresql-plugin.yaml"
+kubectl apply -f "$ROOT/examples/database-table/assets/kubernetes/example.yaml"
