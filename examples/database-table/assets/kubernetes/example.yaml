@@ -15,18 +15,18 @@ spec:
   - name: name
     type: string
 
-  extensions:
+  references:
   - apiVersion: myorg.org/v1alpha1
-    kind: DatabaseTableMariaDbExtension
+    kind: DatabaseTableMariaDb
     name: users
   - apiVersion: myorg.org/v1alpha1
-    kind: DatabaseTablePostgreSqlExtension
+    kind: DatabaseTablePostgreSql
     name: users
 
 ---
 
 apiVersion: myorg.org/v1alpha1
-kind: DatabaseTableMariaDbExtension
+kind: DatabaseTableMariaDb
 
 metadata:
   name: users
@@ -38,7 +38,7 @@ spec:
 ---
 
 apiVersion: myorg.org/v1alpha1
-kind: DatabaseTablePostgreSqlExtension
+kind: DatabaseTablePostgreSql
 
 metadata:
   name: users

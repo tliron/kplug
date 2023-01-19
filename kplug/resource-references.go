@@ -13,14 +13,18 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-type ResourceExtensions struct {
+//
+// ResourceReferences
+//
+
+type ResourceReferences struct {
 	Resources map[string]*unstructured.Unstructured
 	Dynamic   *kubernetes.Dynamic
 	Log       logging.Logger
 }
 
-func NewResourceExtensions(dynamic *kubernetes.Dynamic, objectReferences []core.ObjectReference, defaultNamespace string, log logging.Logger) (*ResourceExtensions, error) {
-	self := ResourceExtensions{
+func NewResourceReferences(dynamic *kubernetes.Dynamic, objectReferences []core.ObjectReference, defaultNamespace string, log logging.Logger) (*ResourceReferences, error) {
+	self := ResourceReferences{
 		Resources: make(map[string]*unstructured.Unstructured),
 		Dynamic:   dynamic,
 		Log:       log,
@@ -34,7 +38,7 @@ func NewResourceExtensions(dynamic *kubernetes.Dynamic, objectReferences []core.
 
 		gvk := objectReference.GroupVersionKind()
 		if resource, err := dynamic.GetResource(gvk, objectReference.Name, namespace); err == nil {
-			key := ToResourceExtensionKey(gvk, namespace, objectReference.Name)
+			key := ToResourceReferenceKey(gvk, namespace, objectReference.Name)
 			self.Resources[key] = resource
 		} else {
 			return nil, err
@@ -44,7 +48,7 @@ func NewResourceExtensions(dynamic *kubernetes.Dynamic, objectReferences []core.
 	return &self, nil
 }
 
-func (self *ResourceExtensions) UpdateStatuses(statuses map[string]ard.StringMap) error {
+func (self *ResourceReferences) UpdateStatuses(statuses map[string]ard.StringMap) error {
 	for key, status := range statuses {
 		if err := self.UpdateStatus(key, status); err != nil {
 			return err
@@ -54,7 +58,7 @@ func (self *ResourceExtensions) UpdateStatuses(statuses map[string]ard.StringMap
 	return nil
 }
 
-func (self *ResourceExtensions) UpdateStatus(key string, status ard.StringMap) error {
+func (self *ResourceReferences) UpdateStatus(key string, status ard.StringMap) error {
 	if resource, ok := self.Resources[key]; ok {
 		if len(status) > 0 {
 			var status_ map[string]any
@@ -74,7 +78,7 @@ func (self *ResourceExtensions) UpdateStatus(key string, status ard.StringMap) e
 			}
 		}
 	} else {
-		return fmt.Errorf("unsupported resource extension status key: %s", key)
+		return fmt.Errorf("unsupported resource reference status key: %s", key)
 	}
 
 	return nil
@@ -82,15 +86,15 @@ func (self *ResourceExtensions) UpdateStatus(key string, status ard.StringMap) e
 
 // Utils
 
-func ToResourceExtensionKey(gvk schema.GroupVersionKind, namespace string, name string) string {
+func ToResourceReferenceKey(gvk schema.GroupVersionKind, namespace string, name string) string {
 	return fmt.Sprintf("%s/%s/%s/%s/%s", gvk.Group, gvk.Version, gvk.Kind, namespace, name)
 }
 
-func FromResourceExtensionKey(key string) (schema.GroupVersionKind, string, string, error) {
+func FromResourceReferenceKey(key string) (schema.GroupVersionKind, string, string, error) {
 	s := strings.Split(key, "/")
 
 	if len(s) != 5 {
-		return schema.GroupVersionKind{}, "", "", errors.New("malformed resource extension key")
+		return schema.GroupVersionKind{}, "", "", errors.New("malformed resource reference key")
 	}
 
 	group := s[0]

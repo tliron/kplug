@@ -34,7 +34,7 @@ type DatabaseTableSpec struct {
 	ServerName              string                 `json:"serverName"`
 	PreferredImplementation string                 `json:"preferredImplementation"`
 	Columns                 []DatabaseTableColumn  `json:"columns,omitempty"`
-	Extensions              []core.ObjectReference `json:"extensions,omitempty"`
+	References              []core.ObjectReference `json:"references,omitempty"`
 }
 
 type DatabaseTableColumn struct {

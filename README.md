@@ -25,10 +25,9 @@ Perhaps even more importantly, it decouples the operator semantics from the impl
 semantics. Often these are meant to be developed by different teams of engineers, with different
 areas of expertise, and indeed from different organizations. Kplug allows both the controller to
 be extensible (hot swappable, live upgradeable) as well as the custom resource, by using a
-meta-model that attaches arbitrary "extension" custom resources to the base, agnostic one with
+meta-model that attaches arbitrary "reference" custom resources to the base, agnostic one with
 additional properties and status to be processed by the plugins. A plugin can thus add both
 functionality and configuration properties.
-
 
 Walkthrough
 -----------
@@ -42,9 +41,9 @@ database server implementation, while on the other hand we want to allow for tho
 to expose their own unique features for configuration.
 
 We'll make use of Kplug's supported meta-model, by which an agnostic custom resource can
-"point" to extensions using a list of
+refer to other resources using a list of
 [object references](https://dev-k8sref-io.web.app/docs/common-definitions/objectreference-/).
-In this example our extensions will add configuration options specific to each implementation:
+In this example they will add configuration options specific to each implementation:
 a choice of [storage engine for MariaDB](https://mariadb.com/kb/en/storage-engines/) and
 a choice of [partitioning mode for PostgreSQL](https://www.postgresql.org/docs/current/ddl-partitioning.html).
 
@@ -61,18 +60,18 @@ spec:
     type: uint64
   - name: name
     type: string
-  extensions:
+  references:
   - apiVersion: myorg.org/v1alpha1
-    kind: DatabaseTableMariaDbExtension
+    kind: DatabaseTableMariaDb
     name: users
   - apiVersion: myorg.org/v1alpha1
-    kind: DatabaseTablePostgreSqlExtension
+    kind: DatabaseTablePostgreSql
     name: users
 
 ---
 
 apiVersion: myorg.org/v1alpha1
-kind: DatabaseTableMariaDbExtension
+kind: DatabaseTableMariaDb
 metadata:
   name: users
 spec:
@@ -81,7 +80,7 @@ spec:
 ---
 
 apiVersion: myorg.org/v1alpha1
-kind: DatabaseTablePostgreSqlExtension
+kind: DatabaseTablePostgreSql
 metadata:
   name: users
 spec:
@@ -91,8 +90,8 @@ spec:
 Note that we specified a `preferredImplementation` in this example, but the exact semantics
 are domain-specific. For example, for some resource types all available plugins may be used,
 rather than just one selected implementation. Also note that we do not necessarily need a custom
-resource extension for a plugin to be used, as the base resource spec may be enough. Furthermore,
-a plugin may support multiple custom resource extensions. In other words, the extensions are not
+resource reference for a plugin to be used, as the base resource spec may be enough. Furthermore,
+a plugin may support multiple custom resource references. In other words, the references are not
 mapped one-to-one with plugins.
 
 Now let's walk through the example:
@@ -116,8 +115,8 @@ its list (no heartbeat from it), so it chooses the available PostreSQL plugin in
 the `DatabaseTable` resource with that choice of plugin in its status area.
 
 4. Finally, delegation happens: the operator, using the Kplug library, makes a gRPC call to
-the PostreSQL plugin sending it our `DatabaseTable` resource manifest as well as its two linked
-extensions.
+the PostreSQL plugin sending it our `DatabaseTable` resource manifest as well as its two
+references.
 
 5. The plugin reconciles the manifest using appropriate semantics. In this case it should check
 to see if the `users` table exists on the specified PostreSQL server, create it if not there,
@@ -127,9 +126,9 @@ superfluous columns, and modifying the type of incorrectly typed columns. The co
 
 6. The return value from that gRPC call minimally contains success/failure and error messages,
 but may also include other status, which may go into the base `DatabaseTable` custom resource
-or any of its extensions. In this case, let's say that reconciliation was successful and
+or any of its references. In this case, let's say that reconciliation was successful and
 that we want to add metrics about the current number of partitions of the table and their
-use. These will be associated with the `DatabaseTablePostgreSqlExtension` resource. The operator
+use. These will be associated with the `DatabaseTablePostgreSql` resource. The operator
 will use that return value to update the resources accordingly.
 
 FAQ

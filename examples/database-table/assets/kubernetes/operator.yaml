@@ -43,7 +43,7 @@ spec:
                       type: string
                     type:
                       type: string
-              extensions:
+              references:
                 type: array
                 nullable: true
                 items:          

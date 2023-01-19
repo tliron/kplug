@@ -35,5 +35,5 @@ message Resource {
 
 message Resources {
     Resource base = 1;
-    map<string, Resource> extensions = 2;
+    map<string, Resource> references = 2;
 }

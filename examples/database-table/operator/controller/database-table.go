@@ -7,12 +7,7 @@ import (
 
 func (self *Controller) processDatabaseTable(databaseTable *resources.DatabaseTable) (bool, error) {
 	if plugin := self.Plugins.Get(); plugin != nil {
-		if status, err := plugin.CreateWithExtensions(databaseTable, databaseTable.Spec.Extensions, databaseTable.Namespace); err == nil {
-			// Log
-			//baseStatus_, _ := transcribe.EncodeYAML(baseStatus, "  ", false)
-			//extensionStatuses_, _ := transcribe.EncodeYAML(extensionStatuses, "  ", false)
-			//self.Log.Infof("%s.create\n%s\n%s", plugin.Information.Name, baseStatus_, extensionStatuses_)
-
+		if status, err := plugin.CreateWithReferences(databaseTable, databaseTable.Spec.References, databaseTable.Namespace); err == nil {
 			if len(status) > 0 {
 				if implementation, ok := ard.NewNode(status).Get("implementation").String(); ok {
 					databaseTable.Status.Implementation = implementation

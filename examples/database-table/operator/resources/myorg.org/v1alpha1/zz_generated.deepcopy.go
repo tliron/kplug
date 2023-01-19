@@ -95,8 +95,8 @@ func (in *DatabaseTableSpec) DeepCopyInto(out *DatabaseTableSpec) {
 		*out = make([]DatabaseTableColumn, len(*in))
 		copy(*out, *in)
 	}
-	if in.Extensions != nil {
-		in, out := &in.Extensions, &out.Extensions
+	if in.References != nil {
+		in, out := &in.References, &out.References
 		*out = make([]v1.ObjectReference, len(*in))
 		copy(*out, *in)
 	}

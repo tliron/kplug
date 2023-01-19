@@ -37,10 +37,10 @@ func (self *Plugins) NewPlugin(pluginInformation *api.PluginInformation) (*Plugi
 	}, nil
 }
 
-func (self *Plugin) CreateWithExtensions(base runtime.Object, extensionReferences []core.ObjectReference, defaultNamespace string) (ard.StringMap, error) {
-	if extensions, err := NewResourceExtensions(self.Plugins.Dynamic, extensionReferences, defaultNamespace, self.Plugins.Log); err == nil {
-		if baseStatus, extensionStatuses, err := self.Create(base, extensions.Resources); err == nil {
-			if err := extensions.UpdateStatuses(extensionStatuses); err == nil {
+func (self *Plugin) CreateWithReferences(base runtime.Object, references []core.ObjectReference, defaultNamespace string) (ard.StringMap, error) {
+	if resourceReferences, err := NewResourceReferences(self.Plugins.Dynamic, references, defaultNamespace, self.Plugins.Log); err == nil {
+		if baseStatus, referenceStatuses, err := self.Create(base, resourceReferences.Resources); err == nil {
+			if err := resourceReferences.UpdateStatuses(referenceStatuses); err == nil {
 				return baseStatus, nil
 			} else {
 				return nil, err
@@ -53,9 +53,9 @@ func (self *Plugin) CreateWithExtensions(base runtime.Object, extensionReference
 	}
 }
 
-func (self *Plugin) Create(base runtime.Object, extensions map[string]*unstructured.Unstructured) (ard.StringMap, map[string]ard.StringMap, error) {
+func (self *Plugin) Create(base runtime.Object, references map[string]*unstructured.Unstructured) (ard.StringMap, map[string]ard.StringMap, error) {
 	if client, err := self.NewClient(); err == nil {
-		if resources, err := toGrpcResources(base, extensions); err == nil {
+		if resources, err := toGrpcResources(base, references); err == nil {
 			if resources_, err := client.Create(self.Plugins.Context, resources); err == nil {
 				return fromGrpcResources(resources_)
 			} else {

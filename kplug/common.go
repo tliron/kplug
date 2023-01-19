@@ -12,23 +12,23 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/serializer/json"
 )
 
-func toGrpcResources(base runtime.Object, extensions map[string]*unstructured.Unstructured) (*api.Resources, error) {
+func toGrpcResources(base runtime.Object, references map[string]*unstructured.Unstructured) (*api.Resources, error) {
 	base_, err := toYaml(base)
 	if err != nil {
 		return nil, err
 	}
 	base__ := api.Resource{Yaml: base_}
 
-	extensions_ := make(map[string]*api.Resource)
-	for key, resource := range extensions {
+	references_ := make(map[string]*api.Resource)
+	for key, resource := range references {
 		if resource_, err := toYaml(resource); err == nil {
-			extensions_[key] = &api.Resource{Yaml: resource_}
+			references_[key] = &api.Resource{Yaml: resource_}
 		} else {
 			return nil, err
 		}
 	}
 
-	return &api.Resources{Base: &base__, Extensions: extensions_}, nil
+	return &api.Resources{Base: &base__, References: references_}, nil
 }
 
 func fromGrpcResources(resources *api.Resources) (ard.StringMap, map[string]ard.StringMap, error) {
@@ -43,19 +43,19 @@ func fromGrpcResources(resources *api.Resources) (ard.StringMap, map[string]ard.
 		return nil, nil, fmt.Errorf("base status not a map: %T", baseStatus)
 	}
 
-	extensionsStatuses := make(map[string]ard.StringMap)
-	for key, extensionStatus := range resources.Extensions {
-		if extensionStatus_, _, err := ard.DecodeYAML(extensionStatus.Yaml, false); err == nil {
-			extensionStatus_, _ = ard.NormalizeStringMaps(extensionStatus_)
-			if extensionsStatuses[key], ok = extensionStatus_.(ard.StringMap); !ok {
-				return nil, nil, fmt.Errorf("extension status not a map: %T", extensionStatus_)
+	referenceStatuses := make(map[string]ard.StringMap)
+	for key, referenceStatus := range resources.References {
+		if referenceStatus_, _, err := ard.DecodeYAML(referenceStatus.Yaml, false); err == nil {
+			referenceStatus_, _ = ard.NormalizeStringMaps(referenceStatus_)
+			if referenceStatuses[key], ok = referenceStatus_.(ard.StringMap); !ok {
+				return nil, nil, fmt.Errorf("reference status not a map: %T", referenceStatus_)
 			}
 		} else {
 			return nil, nil, err
 		}
 	}
 
-	return baseStatus_, extensionsStatuses, nil
+	return baseStatus_, referenceStatuses, nil
 }
 
 func toYaml(object any) (string, error) {

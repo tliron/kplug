@@ -2,15 +2,15 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 
 metadata:
-  name: databasetablemariadbextensions.myorg.org
+  name: databasetablemariadbs.myorg.org
 
 spec:
   group: myorg.org
   names:
-    singular: databasetablemariadbextension
-    plural: databasetablemariadbextensions
-    kind: DatabaseTableMariaDbExtension
-    listKind: DatabaseTableMariaDbExtensionList
+    singular: databasetablemariadb
+    plural: databasetablemariadbs
+    kind: DatabaseTableMariaDb
+    listKind: DatabaseTableMariaDbList
     categories:
     - all # will appear in "kubectl get all"
   scope: Namespaced

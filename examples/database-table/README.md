@@ -9,14 +9,14 @@ Start by installing the operator and its custom resource definition:
 kubectl apply -f assets/kubernetes/operator.yaml
 ```
 
-Now install the custom resource definition extensions and the plugins:
+Now install the plugins and their own custom resource definitions:
 
 ```
 kubectl apply -f assets/kubernetes/mariadb-plugin.yaml
 kubectl apply -f assets/kubernetes/postgresql-plugin.yaml
 ```
 
-Actually, while we are adding a MariaDB custom resource definition extension, we are
+Actually, while we are adding a MariaDB custom resource definition, we are
 not actually including a plugin to support it. This is deliberate in order to
 demonstrate what happens if a certain plugin is not available.
 
@@ -38,10 +38,10 @@ plugin doesn't exist, PostgreSQL will be selected instead.
 
 Check the logs again to see what the operator and plugin are doing.
 
-Check to see that the custom resource and its PostreSQL extension have had their
-statuses updated:
+Check to see that the custom resource and its PostreSQL custom resource have had
+their statuses updated:
 
 ```
 kubectl get databasetable/users -n kplug-example -o yaml
-kubectl get databasetablepostgresqlextension/users -n kplug-example -o yaml
+kubectl get DatabaseTablePostgreSql/users -n kplug-example -o yaml
 ```
