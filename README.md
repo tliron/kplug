@@ -62,16 +62,16 @@ spec:
     type: string
   references:
   - apiVersion: myorg.org/v1alpha1
-    kind: DatabaseTableMariaDb
+    kind: MariaDbDatabaseTable
     name: users
   - apiVersion: myorg.org/v1alpha1
-    kind: DatabaseTablePostgreSql
+    kind: PostgreSqlDatabaseTable
     name: users
 
 ---
 
 apiVersion: myorg.org/v1alpha1
-kind: DatabaseTableMariaDb
+kind: MariaDbDatabaseTable
 metadata:
   name: users
 spec:
@@ -80,7 +80,7 @@ spec:
 ---
 
 apiVersion: myorg.org/v1alpha1
-kind: DatabaseTablePostgreSql
+kind: PostgreSqlDatabaseTable
 metadata:
   name: users
 spec:
@@ -128,7 +128,7 @@ superfluous columns, and modifying the type of incorrectly typed columns. The co
 but may also include other status, which may go into the base `DatabaseTable` custom resource
 or any of its references. In this case, let's say that reconciliation was successful and
 that we want to add metrics about the current number of partitions of the table and their
-use. These will be associated with the `DatabaseTablePostgreSql` resource. The operator
+use. These will be associated with the `PostgreSqlDatabaseTable` resource. The operator
 will use that return value to update the resources accordingly.
 
 FAQ

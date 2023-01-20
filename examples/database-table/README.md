@@ -42,6 +42,6 @@ Check to see that the custom resource and its PostreSQL custom resource have had
 their statuses updated:
 
 ```
-kubectl get databasetable/users -n kplug-example -o yaml
-kubectl get DatabaseTablePostgreSql/users -n kplug-example -o yaml
+kubectl get mariadbdatabasetable/users -n kplug-example -o yaml
+kubectl get PostgreSqlDatabaseTable/users -n kplug-example -o yaml
 ```

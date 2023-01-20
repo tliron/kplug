@@ -9,6 +9,7 @@ import (
 	"github.com/tliron/kutil/kubernetes"
 	"github.com/tliron/kutil/logging"
 	core "k8s.io/api/core/v1"
+	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
@@ -46,6 +47,20 @@ func NewResourceReferences(dynamic *kubernetes.Dynamic, objectReferences []core.
 	}
 
 	return &self, nil
+}
+
+func (self *ResourceReferences) SetController(controller meta.Object) error {
+	for _, resource := range self.Resources {
+		if err := kubernetes.SetControllerOfUnstructured(resource, controller); err == nil {
+			if _, err := self.Dynamic.UpdateResource(resource); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (self *ResourceReferences) UpdateStatuses(statuses map[string]ard.StringMap) error {

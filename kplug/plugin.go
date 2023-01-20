@@ -2,11 +2,13 @@ package kplug
 
 import (
 	"errors"
+	"fmt"
 
 	api "github.com/tliron/kplug/kplug/grpc"
 	"github.com/tliron/kutil/ard"
 	"google.golang.org/grpc"
 	core "k8s.io/api/core/v1"
+	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 )
@@ -39,14 +41,22 @@ func (self *Plugins) NewPlugin(pluginInformation *api.PluginInformation) (*Plugi
 
 func (self *Plugin) CreateWithReferences(base runtime.Object, references []core.ObjectReference, defaultNamespace string) (ard.StringMap, error) {
 	if resourceReferences, err := NewResourceReferences(self.Plugins.Dynamic, references, defaultNamespace, self.Plugins.Log); err == nil {
-		if baseStatus, referenceStatuses, err := self.Create(base, resourceReferences.Resources); err == nil {
-			if err := resourceReferences.UpdateStatuses(referenceStatuses); err == nil {
-				return baseStatus, nil
+		if base_, ok := base.(meta.Object); ok {
+			if err := resourceReferences.SetController(base_); err == nil {
+				if baseStatus, referenceStatuses, err := self.Create(base, resourceReferences.Resources); err == nil {
+					if err := resourceReferences.UpdateStatuses(referenceStatuses); err == nil {
+						return baseStatus, nil
+					} else {
+						return nil, err
+					}
+				} else {
+					return nil, err
+				}
 			} else {
 				return nil, err
 			}
 		} else {
-			return nil, err
+			return nil, fmt.Errorf("object does not have meta: %T", base)
 		}
 	} else {
 		return nil, err

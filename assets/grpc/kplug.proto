@@ -30,7 +30,7 @@ message PluginHeartbeatResponse {
 }
 
 message Resource {
-    string yaml = 2;
+    string yaml = 1;
 }
 
 message Resources {

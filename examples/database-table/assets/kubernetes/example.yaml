@@ -17,16 +17,16 @@ spec:
 
   references:
   - apiVersion: myorg.org/v1alpha1
-    kind: DatabaseTableMariaDb
+    kind: MariaDbDatabaseTable
     name: users
   - apiVersion: myorg.org/v1alpha1
-    kind: DatabaseTablePostgreSql
+    kind: PostgreSqlDatabaseTable
     name: users
 
 ---
 
 apiVersion: myorg.org/v1alpha1
-kind: DatabaseTableMariaDb
+kind: MariaDbDatabaseTable
 
 metadata:
   name: users
@@ -38,7 +38,7 @@ spec:
 ---
 
 apiVersion: myorg.org/v1alpha1
-kind: DatabaseTablePostgreSql
+kind: PostgreSqlDatabaseTable
 
 metadata:
   name: users
