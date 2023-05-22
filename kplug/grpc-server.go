@@ -4,8 +4,8 @@ import (
 	contextpkg "context"
 	"net"
 
+	"github.com/tliron/commonlog"
 	api "github.com/tliron/kplug/kplug/grpc"
-	"github.com/tliron/kutil/logging"
 	"github.com/tliron/kutil/util"
 	"google.golang.org/grpc"
 )
@@ -20,12 +20,12 @@ type GRPCServer struct {
 	Protocol string
 	Port     int
 	Plugins  *Plugins
-	Log      logging.Logger
+	Log      commonlog.Logger
 
 	grpcServer *grpc.Server
 }
 
-func NewGRPCServer(protocol string, port int, plugins *Plugins, log logging.Logger) *GRPCServer {
+func NewGRPCServer(protocol string, port int, plugins *Plugins, log commonlog.Logger) *GRPCServer {
 	return &GRPCServer{
 		Protocol: protocol,
 		Port:     port,

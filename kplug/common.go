@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/tliron/go-ard"
 	api "github.com/tliron/kplug/kplug/grpc"
-	"github.com/tliron/kutil/ard"
 	"github.com/tliron/kutil/transcribe"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"

@@ -1,8 +1,8 @@
 package controller
 
 import (
+	"github.com/tliron/go-ard"
 	resources "github.com/tliron/kplug/examples/database-table/operator/resources/myorg.org/v1alpha1"
-	"github.com/tliron/kutil/ard"
 )
 
 func (self *Controller) processDatabaseTable(databaseTable *resources.DatabaseTable) (bool, error) {

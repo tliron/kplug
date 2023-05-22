@@ -4,9 +4,9 @@ import (
 	contextpkg "context"
 	"sync"
 
+	"github.com/tliron/commonlog"
 	api "github.com/tliron/kplug/kplug/grpc"
 	"github.com/tliron/kutil/kubernetes"
-	"github.com/tliron/kutil/logging"
 )
 
 //
@@ -17,12 +17,12 @@ type Plugins struct {
 	Plugins map[PluginKey]*Plugin
 	Dynamic *kubernetes.Dynamic
 	Context contextpkg.Context
-	Log     logging.Logger
+	Log     commonlog.Logger
 
 	lock sync.Mutex
 }
 
-func NewPlugins(dynamic *kubernetes.Dynamic, context contextpkg.Context, log logging.Logger) *Plugins {
+func NewPlugins(dynamic *kubernetes.Dynamic, context contextpkg.Context, log commonlog.Logger) *Plugins {
 	return &Plugins{
 		Plugins: make(map[PluginKey]*Plugin),
 		Dynamic: dynamic,

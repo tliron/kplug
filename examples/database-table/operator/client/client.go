@@ -3,8 +3,8 @@ package client
 import (
 	contextpkg "context"
 
+	"github.com/tliron/commonlog"
 	myorgpkg "github.com/tliron/kplug/examples/database-table/operator/apis/clientset/versioned"
-	"github.com/tliron/kutil/logging"
 )
 
 //
@@ -17,7 +17,7 @@ type Client struct {
 	Namespace string
 
 	Context contextpkg.Context
-	Log     logging.Logger
+	Log     commonlog.Logger
 }
 
 func NewClient(myOrg myorgpkg.Interface, context contextpkg.Context, namespace string, logName string) *Client {
@@ -25,6 +25,6 @@ func NewClient(myOrg myorgpkg.Interface, context contextpkg.Context, namespace s
 		MyOrg:     myOrg,
 		Namespace: namespace,
 		Context:   context,
-		Log:       logging.GetLogger(logName),
+		Log:       commonlog.GetLogger(logName),
 	}
 }

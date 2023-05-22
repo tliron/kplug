@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/tliron/kutil/ard"
+	"github.com/tliron/commonlog"
+	"github.com/tliron/go-ard"
 	"github.com/tliron/kutil/kubernetes"
-	"github.com/tliron/kutil/logging"
 	core "k8s.io/api/core/v1"
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -21,10 +21,10 @@ import (
 type ResourceReferences struct {
 	Resources map[string]*unstructured.Unstructured
 	Dynamic   *kubernetes.Dynamic
-	Log       logging.Logger
+	Log       commonlog.Logger
 }
 
-func NewResourceReferences(dynamic *kubernetes.Dynamic, objectReferences []core.ObjectReference, defaultNamespace string, log logging.Logger) (*ResourceReferences, error) {
+func NewResourceReferences(dynamic *kubernetes.Dynamic, objectReferences []core.ObjectReference, defaultNamespace string, log commonlog.Logger) (*ResourceReferences, error) {
 	self := ResourceReferences{
 		Resources: make(map[string]*unstructured.Unstructured),
 		Dynamic:   dynamic,

@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/tliron/go-ard"
 	api "github.com/tliron/kplug/kplug/grpc"
-	"github.com/tliron/kutil/ard"
 	"google.golang.org/grpc"
 	core "k8s.io/api/core/v1"
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"

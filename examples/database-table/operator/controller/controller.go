@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/tliron/commonlog"
 	myorgpkg "github.com/tliron/kplug/examples/database-table/operator/apis/clientset/versioned"
 	myorginformers "github.com/tliron/kplug/examples/database-table/operator/apis/informers/externalversions"
 	myorglisters "github.com/tliron/kplug/examples/database-table/operator/apis/listers/myorg.org/v1alpha1"
@@ -13,7 +14,6 @@ import (
 	"github.com/tliron/kplug/kplug"
 	kplugpkg "github.com/tliron/kplug/kplug"
 	kubernetesutil "github.com/tliron/kutil/kubernetes"
-	"github.com/tliron/kutil/logging"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	dynamicpkg "k8s.io/client-go/dynamic"
 	"k8s.io/client-go/informers"
@@ -43,13 +43,13 @@ type Controller struct {
 	DatabaseTables myorglisters.DatabaseTableLister
 
 	Context contextpkg.Context
-	Log     logging.Logger
+	Log     commonlog.Logger
 
 	Plugins *kplugpkg.Plugins
 }
 
 func NewController(context contextpkg.Context, toolName string, namespace string, dynamic dynamicpkg.Interface, kubernetes kubernetes.Interface, kplug myorgpkg.Interface, informerResyncPeriod time.Duration, stopChannel <-chan struct{}, grpcProtocol string, grpcPort int) *Controller {
-	log := logging.GetLoggerf("%s.controller", toolName)
+	log := commonlog.GetLoggerf("%s.controller", toolName)
 
 	self := Controller{
 		Dynamic:      kubernetesutil.NewDynamic(toolName, dynamic, kubernetes.Discovery(), namespace, context),
