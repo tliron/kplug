@@ -4,11 +4,13 @@ package fake
 
 import (
 	"context"
+	json "encoding/json"
+	"fmt"
 
+	myorgorgv1alpha1 "github.com/tliron/kplug/examples/database-table/operator/apis/applyconfiguration/myorg.org/v1alpha1"
 	v1alpha1 "github.com/tliron/kplug/examples/database-table/operator/resources/myorg.org/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
-	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
 	testing "k8s.io/client-go/testing"
@@ -20,9 +22,9 @@ type FakeDatabaseTables struct {
 	ns   string
 }
 
-var databasetablesResource = schema.GroupVersionResource{Group: "myorg.org", Version: "v1alpha1", Resource: "databasetables"}
+var databasetablesResource = v1alpha1.SchemeGroupVersion.WithResource("databasetables")
 
-var databasetablesKind = schema.GroupVersionKind{Group: "myorg.org", Version: "v1alpha1", Kind: "DatabaseTable"}
+var databasetablesKind = v1alpha1.SchemeGroupVersion.WithKind("DatabaseTable")
 
 // Get takes name of the databaseTable, and returns the corresponding databaseTable object, and an error if there is any.
 func (c *FakeDatabaseTables) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.DatabaseTable, err error) {
@@ -118,6 +120,51 @@ func (c *FakeDatabaseTables) DeleteCollection(ctx context.Context, opts v1.Delet
 func (c *FakeDatabaseTables) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.DatabaseTable, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewPatchSubresourceAction(databasetablesResource, c.ns, name, pt, data, subresources...), &v1alpha1.DatabaseTable{})
+
+	if obj == nil {
+		return nil, err
+	}
+	return obj.(*v1alpha1.DatabaseTable), err
+}
+
+// Apply takes the given apply declarative configuration, applies it and returns the applied databaseTable.
+func (c *FakeDatabaseTables) Apply(ctx context.Context, databaseTable *myorgorgv1alpha1.DatabaseTableApplyConfiguration, opts v1.ApplyOptions) (result *v1alpha1.DatabaseTable, err error) {
+	if databaseTable == nil {
+		return nil, fmt.Errorf("databaseTable provided to Apply must not be nil")
+	}
+	data, err := json.Marshal(databaseTable)
+	if err != nil {
+		return nil, err
+	}
+	name := databaseTable.Name
+	if name == nil {
+		return nil, fmt.Errorf("databaseTable.Name must be provided to Apply")
+	}
+	obj, err := c.Fake.
+		Invokes(testing.NewPatchSubresourceAction(databasetablesResource, c.ns, *name, types.ApplyPatchType, data), &v1alpha1.DatabaseTable{})
+
+	if obj == nil {
+		return nil, err
+	}
+	return obj.(*v1alpha1.DatabaseTable), err
+}
+
+// ApplyStatus was generated because the type contains a Status member.
+// Add a +genclient:noStatus comment above the type to avoid generating ApplyStatus().
+func (c *FakeDatabaseTables) ApplyStatus(ctx context.Context, databaseTable *myorgorgv1alpha1.DatabaseTableApplyConfiguration, opts v1.ApplyOptions) (result *v1alpha1.DatabaseTable, err error) {
+	if databaseTable == nil {
+		return nil, fmt.Errorf("databaseTable provided to Apply must not be nil")
+	}
+	data, err := json.Marshal(databaseTable)
+	if err != nil {
+		return nil, err
+	}
+	name := databaseTable.Name
+	if name == nil {
+		return nil, fmt.Errorf("databaseTable.Name must be provided to Apply")
+	}
+	obj, err := c.Fake.
+		Invokes(testing.NewPatchSubresourceAction(databasetablesResource, c.ns, *name, types.ApplyPatchType, data, "status"), &v1alpha1.DatabaseTable{})
 
 	if obj == nil {
 		return nil, err

@@ -4,8 +4,11 @@ package v1alpha1
 
 import (
 	"context"
+	json "encoding/json"
+	"fmt"
 	"time"
 
+	myorgorgv1alpha1 "github.com/tliron/kplug/examples/database-table/operator/apis/applyconfiguration/myorg.org/v1alpha1"
 	scheme "github.com/tliron/kplug/examples/database-table/operator/apis/clientset/versioned/scheme"
 	v1alpha1 "github.com/tliron/kplug/examples/database-table/operator/resources/myorg.org/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -31,6 +34,8 @@ type DatabaseTableInterface interface {
 	List(ctx context.Context, opts v1.ListOptions) (*v1alpha1.DatabaseTableList, error)
 	Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error)
 	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.DatabaseTable, err error)
+	Apply(ctx context.Context, databaseTable *myorgorgv1alpha1.DatabaseTableApplyConfiguration, opts v1.ApplyOptions) (result *v1alpha1.DatabaseTable, err error)
+	ApplyStatus(ctx context.Context, databaseTable *myorgorgv1alpha1.DatabaseTableApplyConfiguration, opts v1.ApplyOptions) (result *v1alpha1.DatabaseTable, err error)
 	DatabaseTableExpansion
 }
 
@@ -172,6 +177,62 @@ func (c *databaseTables) Patch(ctx context.Context, name string, pt types.PatchT
 		Name(name).
 		SubResource(subresources...).
 		VersionedParams(&opts, scheme.ParameterCodec).
+		Body(data).
+		Do(ctx).
+		Into(result)
+	return
+}
+
+// Apply takes the given apply declarative configuration, applies it and returns the applied databaseTable.
+func (c *databaseTables) Apply(ctx context.Context, databaseTable *myorgorgv1alpha1.DatabaseTableApplyConfiguration, opts v1.ApplyOptions) (result *v1alpha1.DatabaseTable, err error) {
+	if databaseTable == nil {
+		return nil, fmt.Errorf("databaseTable provided to Apply must not be nil")
+	}
+	patchOpts := opts.ToPatchOptions()
+	data, err := json.Marshal(databaseTable)
+	if err != nil {
+		return nil, err
+	}
+	name := databaseTable.Name
+	if name == nil {
+		return nil, fmt.Errorf("databaseTable.Name must be provided to Apply")
+	}
+	result = &v1alpha1.DatabaseTable{}
+	err = c.client.Patch(types.ApplyPatchType).
+		Namespace(c.ns).
+		Resource("databasetables").
+		Name(*name).
+		VersionedParams(&patchOpts, scheme.ParameterCodec).
+		Body(data).
+		Do(ctx).
+		Into(result)
+	return
+}
+
+// ApplyStatus was generated because the type contains a Status member.
+// Add a +genclient:noStatus comment above the type to avoid generating ApplyStatus().
+func (c *databaseTables) ApplyStatus(ctx context.Context, databaseTable *myorgorgv1alpha1.DatabaseTableApplyConfiguration, opts v1.ApplyOptions) (result *v1alpha1.DatabaseTable, err error) {
+	if databaseTable == nil {
+		return nil, fmt.Errorf("databaseTable provided to Apply must not be nil")
+	}
+	patchOpts := opts.ToPatchOptions()
+	data, err := json.Marshal(databaseTable)
+	if err != nil {
+		return nil, err
+	}
+
+	name := databaseTable.Name
+	if name == nil {
+		return nil, fmt.Errorf("databaseTable.Name must be provided to Apply")
+	}
+
+	result = &v1alpha1.DatabaseTable{}
+	err = c.client.Patch(types.ApplyPatchType).
+		Namespace(c.ns).
+		Resource("databasetables").
+		Name(*name).
+		SubResource("status").
+		VersionedParams(&patchOpts, scheme.ParameterCodec).
 		Body(data).
 		Do(ctx).
 		Into(result)
